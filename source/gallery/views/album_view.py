@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 
 from gallery.forms import AlbumForm
 from gallery.models.album import Album
+from gallery.models.photo import Photo
 
 
 class AlbumDetailView(DetailView):
@@ -14,8 +15,12 @@ class AlbumDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['photos'] = self.object.photos.filter(is_private=True).order_by('-created_at')
-
+        if self.request.user == self.object.author:
+            album_photos = Photo.objects.filter(album=self.object).order_by('-created_at')
+        else:
+            album_photos = Photo.objects.filter(album=self.object, is_private=False).order_by('-created_at')
+        context['album_photos'] = album_photos
+        return context
 
 class AlbumCreateView(LoginRequiredMixin, CreateView):
     model = Album

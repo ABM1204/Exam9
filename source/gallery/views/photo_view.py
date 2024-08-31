@@ -10,14 +10,16 @@ from gallery.models.photo import Photo
 class PhotoListView(ListView):
     model = Photo
     template_name = 'photo/photo_list.html'
-    context_object_name = 'photo_list'
+    context_object_name = 'photos'
     paginate_by = 10
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            return Photo.objects.filter(is_private=False) | Photo.objects.filter(author=self.request.user)
+            return Photo.objects.filter(is_private=False).union(
+                Photo.objects.filter(author=self.request.user)
+            ).order_by('-created_at')
         else:
-            return Photo.objects.filter(is_private=False)
+            return Photo.objects.filter(is_private=False).order_by('-created_at')
 
 
 class PhotoDetailView(DetailView):

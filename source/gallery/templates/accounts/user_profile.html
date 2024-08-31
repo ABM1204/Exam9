@@ -13,7 +13,10 @@
 <h3>Public Photos</h3>
 <ul>
   {% for photo in public_photos %}
-  <li>{{ photo.caption }}</li>
+  <li>
+    <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" width="100" height="100"> 
+    <p>{{ photo.caption }}</p>
+  </li>
   {% endfor %}
 </ul>
 
@@ -28,7 +31,10 @@
   <h3>Private Photos</h3>
   <ul>
     {% for photo in private_photos %}
-    <li>{{ photo.caption }}</li>
+    <li>
+      <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" width="100" height="100"> 
+      <p>{{ photo.caption }}</p>
+    </li>
     {% endfor %}
   </ul>
 

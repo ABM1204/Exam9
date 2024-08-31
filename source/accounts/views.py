@@ -7,6 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from accounts.forms import RegistrationForm
 from gallery.models.album import Album
 from gallery.models.photo import Photo
+from accounts.models import Profile
 
 User = get_user_model()
 
@@ -18,6 +19,7 @@ class RegistrationView(CreateView):
 
     def form_valid(self, form):
         user = form.save()
+        Profile.objects.create(user=user)
         login(self.request, user)
         return redirect(self.get_success_url())
 
@@ -50,8 +52,7 @@ class UserLogoutView(View):
         return redirect('login')
 
 
-
-class UserProfileView(View):
+class UserProfileView(LoginRequiredMixin, View):
     def get(self, request, pk):
         user_profile = get_object_or_404(User, pk=pk)
         public_albums = Album.objects.filter(author=user_profile, is_private=False)
@@ -66,21 +67,24 @@ class UserProfileView(View):
         if request.user == user_profile:
             private_albums = Album.objects.filter(author=user_profile, is_private=True)
             private_photos = Photo.objects.filter(author=user_profile, is_private=True, album__isnull=True)
-            context['private_albums'] = private_albums
-            context['private_photos'] = private_photos
+            favorite_albums = request.user.profile.favorite_albums.filter(is_private=False)
+            favorite_photos = request.user.profile.favorite_photos.filter(is_private=False)
 
-            favorite_albums = request.user.favorite_albums.filter(is_private=False)
-            favorite_photos = request.user.favorite_photos.filter(is_private=False)
-            context['favorite_albums'] = favorite_albums
-            context['favorite_photos'] = favorite_photos
+            context.update({
+                'private_albums': private_albums,
+                'private_photos': private_photos,
+                'favorite_albums': favorite_albums,
+                'favorite_photos': favorite_photos,
+            })
 
         return render(request, 'accounts/user_profile.html', context)
 
 
 class UserFavoritesView(LoginRequiredMixin, View):
     def get(self, request):
-        favorite_albums = request.user.favorite_albums.filter(is_private=False)
-        favorite_photos = request.user.favorite_photos.filter(is_private=False)
+        profile = request.user.profile
+        favorite_albums = profile.favorite_albums.filter(is_private=False)
+        favorite_photos = profile.favorite_photos.filter(is_private=False)
         context = {
             'favorite_albums': favorite_albums,
             'favorite_photos': favorite_photos,
