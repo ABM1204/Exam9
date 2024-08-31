@@ -1,16 +1,33 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ photo.caption }}</h1>
-    <img src="{{ photo.image }}" alt="{{ photo.caption }}">
-    <p>Author: <a href="{% url 'user_profile' photo.author.id %}">{{ photo.author.get_full_name }}</a></p>
-    <p>Date: {{ photo.created_at }}</p>
-    {% if photo.album %}
-        Album: <a href="{% url 'album_detail' photo.album.id %}">{{ photo.album.title }}</a>
-    {% endif %}
-    <ul>
-        {% for user in photo.favorite_users.all %}
-            <li><a href="{% url 'user_profile' user.id %}">{{ user.get_full_name }}</a></li>
-        {% endfor %}
-    </ul>
+<h1>{{ photo.caption }}</h1>
+<img src="{{ photo.image.url }}" alt="{{ photo.caption }}">
+    
+<p>Uploaded by: {{ photo.author.get_full_name }}</p>
+<p>Date: {{ photo.created_at }}</p>
+{% if photo.album %}
+  <p>Album: <a href="{% url 'album_detail' photo.album.pk %}">{{ photo.album.title }}</a></p>
+{% endif %}
+{% if user == photo.author %}
+  <h2>Manage Photo</h2>
+  {% if can_generate_link %}
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit">Generate Access Link</button>
+    </form>
+  {% endif %}
+    
+  {% if access_link %}
+    <p>Access Link: <a href="{{ access_link }}">{{ access_link }}</a></p>
+  {% endif %}
+    
+  <a href="{% url 'photo_edit' photo.pk %}" class="btn btn-primary">Edit Photo</a>
+  <a href="{% url 'photo_delete' photo.pk %}" class="btn btn-danger" 
+     onclick="return confirm('Are you sure you want to delete this photo?');">Delete Photo</a>
+{% else %}
+  <p>You do not have permissions to manage this photo.</p>
+{% endif %}
+<a href="{% url 'photo_list' %}">Back to Photo List</a>
+
 {% endblock %}

@@ -8,12 +8,22 @@
 <ul>
   {% for photo in album_photos %}
   <li>
-    <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" width="100" height="100"> 
+    <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" width="100" height="100">
     <p>{{ photo.caption }}</p>
   </li>
   {% empty %}
   <li>No photos available in this album.</li>
   {% endfor %}
 </ul>
+    
+{% if user == album.author %}
+  <h2>Manage Album</h2>
+  <a href="{% url 'album_edit' album.pk %}" class="btn btn-primary">Edit Album</a>
+  <a href="{% url 'album_delete' album.pk %}" class="btn btn-danger" 
+     onclick="return confirm('Are you sure you want to delete this album?');">Delete Album</a>
+{% else %}
+  <p>You do not have permissions to manage this album.</p>
+{% endif %}
+<a href="{% url 'photo_list' %}">Back to Photo List</a>
 
 {% endblock %}

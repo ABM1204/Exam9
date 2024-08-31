@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from gallery.forms import PhotoForm
@@ -24,7 +25,23 @@ class PhotoListView(ListView):
 class PhotoDetailView(LoginRequiredMixin, DetailView):
     model = Photo
     template_name = 'photo/photo_detail.html'
-    context_object_name = 'photo_detail'
+    context_object_name = 'photo'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        photo = self.get_object()
+        if self.request.user == photo.author:
+            if photo.token:
+                context['access_link'] = self.request.build_absolute_uri(f'/photos/access/{photo.token}/')
+            else:
+                context['can_generate_link'] = True
+        return context
+
+    def post(self, request, *args, **kwargs):
+        photo = self.get_object()
+        if request.user == photo.author and not photo.token:
+            photo.generate_token()
+        return self.get(request, *args, **kwargs)
 
 
 class PhotoCreateView(LoginRequiredMixin, CreateView):
@@ -78,3 +95,13 @@ class PhotoDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         photo = self.get_object()
         return self.request.user == photo.author or self.request.user.has_perm('gallery.delete_photo')
+
+
+class PhotoAccessView(DetailView):
+    model = Photo
+    template_name = 'photo/photo_detail.html'
+    context_object_name = 'photo'
+
+    def get_object(self, queryset=None):
+        token = self.kwargs.get('token')
+        return get_object_or_404(Photo, token=token)
