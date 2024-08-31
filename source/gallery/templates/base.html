@@ -1,31 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %} 
     <meta charset="UTF-8">
-    <title>{% block title %}My Gallery{% endblock %}</title>
+    <title>My Gallery</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'photo_list' %}">Home</a></li>
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'photo_create' %}">Create Photo</a></li>
-                    <li><a href="{% url 'album_create' %}">Create Album</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                    <li><a href="{% url 'user_profile' user.pk %}">My Profile</a></li>
-                    <li>Welcome, {{ user.username }}</li>
-                {% else %}
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                    <li><a href="{% url 'register' %}">Sign Up</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </header>
-    
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="{% url 'photo_list' %}">My Gallery</a>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav ml-auto">
+      {% if user.is_authenticated %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'photo_create' %}">Create Photo</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'album_create' %}">Create Album</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'user_profile' user.pk %}">My Profile</a></li>
+      {% else %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'photo_list' %}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>
+
+<div class="container mt-4">
+    {% block content %}
+    {% endblock content %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

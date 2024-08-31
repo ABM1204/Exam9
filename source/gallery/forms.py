@@ -32,8 +32,18 @@ class AlbumForm(forms.ModelForm):
         fields = ['title', 'description', 'is_private']
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        if user:
+            self.fields['album'].queryset = Album.objects.filter(author=user)
 
     def clean(self):
         cleaned_data = super().clean()
+        album = cleaned_data.get('album')
+        is_private = cleaned_data.get('is_private')
+        if album and album.is_private:
+            cleaned_data['is_private'] = True
         return cleaned_data
+
+
+

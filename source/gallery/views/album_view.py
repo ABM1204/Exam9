@@ -36,7 +36,7 @@ class AlbumUpdateView(LoginRequiredMixin, UpdateView):
     model = Album
     form_class = AlbumForm
     template_name = 'album/album_form.html'
-    success_url = reverse_lazy('album_list')
+    success_url = reverse_lazy('photo_list')
 
     def form_valid(self, form):
         if form.instance.author != self.request.user:
@@ -49,7 +49,7 @@ class AlbumUpdateView(LoginRequiredMixin, UpdateView):
 class AlbumDeleteView(LoginRequiredMixin, DeleteView):
     model = Album
     template_name = 'album/album_delete.html'
-    success_url = reverse_lazy('album_list')
+    success_url = reverse_lazy('photo_list')
 
     def get_album(self, queryset=None):
         album = super().get_object(queryset)

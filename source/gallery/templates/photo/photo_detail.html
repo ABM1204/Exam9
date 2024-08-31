@@ -1,33 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ photo.caption }}</h1>
-<img src="{{ photo.image.url }}" alt="{{ photo.caption }}">
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <img src="{{ photo.image.url }}" class="card-img-top" alt="{{ photo.caption }}">
+        <div class="card-body">
+          <h5 class="card-title">{{ photo.caption }}</h5>
+          <p class="card-text">
+            <strong>Uploaded by:</strong> {{ photo.author.get_full_name }}
+          </p>
+          <p class="card-text">
+            <strong>Date:</strong> {{ photo.created_at|date:"M d, Y, P" }}
+          </p>
+          {% if photo.album %}
+          <p class="card-text">
+            <strong>Album:</strong> <a href="{% url 'album_detail' photo.album.pk %}">{{ photo.album.title }}</a>
+          </p>
+          {% endif %}
+          <p class="card-text">
+            <strong>Status:</strong> {{ photo.is_private|yesno:"Private,Public" }}
+          </p>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-md-4">
+      {% if user == photo.author %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Manage Photo</h5>
+        
+          {% if can_generate_link %}
+          <form method="post" class="mb-3">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary btn-block">Generate Access Link</button>
+          </form>
+          {% endif %}
+        
+          {% if access_link %}
+          <p>Access Link: <a href="{{ access_link }}" class="card-link">{{ access_link }}</a></p>
+          {% endif %}
+        
+          <a href="{% url 'photo_edit' photo.pk %}" class="btn btn-primary btn-block mb-2">Edit Photo</a>
+          <a href="{% url 'photo_delete' photo.pk %}" class="btn btn-danger btn-block" 
+             onclick="return confirm('Are you sure you want to delete this photo?');">Delete Photo</a>
+        </div>
+      </div>
+      {% endif %}
     
-<p>Uploaded by: {{ photo.author.get_full_name }}</p>
-<p>Date: {{ photo.created_at }}</p>
-{% if photo.album %}
-  <p>Album: <a href="{% url 'album_detail' photo.album.pk %}">{{ photo.album.title }}</a></p>
-{% endif %}
-{% if user == photo.author %}
-  <h2>Manage Photo</h2>
-  {% if can_generate_link %}
-    <form method="post">
-      {% csrf_token %}
-      <button type="submit">Generate Access Link</button>
-    </form>
-  {% endif %}
-    
-  {% if access_link %}
-    <p>Access Link: <a href="{{ access_link }}">{{ access_link }}</a></p>
-  {% endif %}
-    
-  <a href="{% url 'photo_edit' photo.pk %}" class="btn btn-primary">Edit Photo</a>
-  <a href="{% url 'photo_delete' photo.pk %}" class="btn btn-danger" 
-     onclick="return confirm('Are you sure you want to delete this photo?');">Delete Photo</a>
-{% else %}
-  <p>You do not have permissions to manage this photo.</p>
-{% endif %}
-<a href="{% url 'photo_list' %}">Back to Photo List</a>
-
+      <a href="{% url 'photo_list' %}" class="btn btn-secondary btn-block">Back to Photo List</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

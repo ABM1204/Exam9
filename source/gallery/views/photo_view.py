@@ -5,6 +5,9 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from gallery.forms import PhotoForm
 from gallery.models.photo import Photo
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PhotoListView(ListView):
@@ -15,11 +18,13 @@ class PhotoListView(ListView):
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            return Photo.objects.filter(is_private=False).union(
+            photos = Photo.objects.filter(is_private=False).union(
                 Photo.objects.filter(author=self.request.user)
             ).order_by('-created_at')
         else:
-            return Photo.objects.filter(is_private=False).order_by('-created_at')
+            photos = Photo.objects.filter(is_private=False).order_by('-created_at')
+        logger.debug(f'Queryset contains {photos.count()} photos.')
+        return photos
 
 
 class PhotoDetailView(LoginRequiredMixin, DetailView):
