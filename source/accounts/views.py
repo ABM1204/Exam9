@@ -2,7 +2,7 @@ from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, View
+from django.views.generic import CreateView, View, DetailView
 from django.contrib.auth.forms import AuthenticationForm
 from accounts.forms import RegistrationForm
 from gallery.models.album import Album
@@ -52,7 +52,11 @@ class UserLogoutView(View):
         return redirect('login')
 
 
-class UserProfileView(LoginRequiredMixin, View):
+class UserProfileView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'accounts/user_profile.html'
+    context_object_name = 'user_profile'
+
     def get(self, request, pk):
         user_profile = get_object_or_404(User, pk=pk)
         public_albums = Album.objects.filter(author=user_profile, is_private=False)

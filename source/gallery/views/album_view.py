@@ -7,8 +7,7 @@ from gallery.forms import AlbumForm
 from gallery.models.album import Album
 from gallery.models.photo import Photo
 
-
-class AlbumDetailView(DetailView):
+class AlbumDetailView(LoginRequiredMixin, DetailView):
     model = Album
     template_name = 'album/album_detail.html'
     context_object_name = 'album'

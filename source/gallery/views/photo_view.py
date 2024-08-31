@@ -1,6 +1,5 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseForbidden
-from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from gallery.forms import PhotoForm
@@ -22,7 +21,7 @@ class PhotoListView(ListView):
             return Photo.objects.filter(is_private=False).order_by('-created_at')
 
 
-class PhotoDetailView(DetailView):
+class PhotoDetailView(LoginRequiredMixin, DetailView):
     model = Photo
     template_name = 'photo/photo_detail.html'
     context_object_name = 'photo_detail'
@@ -35,9 +34,9 @@ class PhotoCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('photo_list')
 
     def get_form_kwargs(self):
-        kwrgs = super().get_form_kwargs()
-        kwrgs['user'] = self.request.user
-        return kwrgs
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -48,7 +47,7 @@ class PhotoCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class PhotoUpdateView(LoginRequiredMixin, UpdateView):
+class PhotoUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Photo
     form_class = PhotoForm
     template_name = 'photo/photo_form.html'
@@ -60,25 +59,22 @@ class PhotoUpdateView(LoginRequiredMixin, UpdateView):
         return kwargs
 
     def form_valid(self, form):
-        if form.instanse.author != self.request.user:
+        if form.instance.author != self.request.user:
             return HttpResponseForbidden("ERROR")
-        if form.instance.author and form.instance.album.is_private:
+        if form.instance.album and form.instance.album.is_private:
             form.instance.is_private = True
         return super().form_valid(form)
 
+    def test_func(self):
+        photo = self.get_object()
+        return self.request.user == photo.author or self.request.user.has_perm('gallery.change_photo')
 
-class PhotoDeleteView(LoginRequiredMixin, DeleteView):
+
+class PhotoDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Photo
     template_name = 'photo/photo_delete.html'
     success_url = reverse_lazy('photo_list')
-    def get_photo(self, queryset=None):
-        photo = super().get_object(queryset=queryset)
-        if photo.author != self.request.user:
-            return HttpResponseForbidden("ERROR")
-        return photo
 
-
-
-
-
-        
+    def test_func(self):
+        photo = self.get_object()
+        return self.request.user == photo.author or self.request.user.has_perm('gallery.delete_photo')
