@@ -35,11 +35,23 @@ class PhotoDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         photo = self.get_object()
-        if self.request.user == photo.author:
+        user = self.request.user
+
+        context['can_edit'] = user == photo.author or user.has_perm('gallery.change_photo')
+        context['can_delete'] = user == photo.author or user.has_perm('gallery.delete_photo')
+
+        if user == photo.author:
             if photo.token:
                 context['access_link'] = self.request.build_absolute_uri(f'/photos/access/{photo.token}/')
             else:
                 context['can_generate_link'] = True
+
+        if user.is_authenticated:
+            user_profile = self.request.user.profile
+            context['is_favorite'] = photo in user_profile.favorite_photos.all()
+        else:
+            context['is_favorite'] = False
+
         return context
 
     def post(self, request, *args, **kwargs):

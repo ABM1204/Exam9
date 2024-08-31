@@ -1,6 +1,7 @@
 from django.urls import path
 from .views.photo_view import PhotoListView, PhotoDetailView, PhotoCreateView, PhotoUpdateView, PhotoDeleteView, PhotoAccessView
 from .views.album_view import AlbumDetailView, AlbumCreateView, AlbumUpdateView, AlbumDeleteView
+from .views.api import add_to_favorites, remove_from_favorites
 
 urlpatterns = [
     path('photos/', PhotoListView.as_view(), name='photo_list'),
@@ -14,4 +15,7 @@ urlpatterns = [
     path('albums/create/', AlbumCreateView.as_view(), name='album_create'),
     path('albums/<int:pk>/edit/', AlbumUpdateView.as_view(), name='album_edit'),
     path('albums/<int:pk>/delete/', AlbumDeleteView.as_view(), name='album_delete'),
+
+    path('favorites/add/', add_to_favorites, name='add_to_favorites'),
+    path('favorites/remove/', remove_from_favorites, name='remove_from_favorites')
 ]
