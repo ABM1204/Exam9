@@ -12,11 +12,11 @@
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'photo_create' %}">Create Photo</a></li>
                     <li><a href="{% url 'album_create' %}">Create Album</a></li>
-                    <li><a href="#">Logout</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
                     <li>Welcome, {{ user.username }}</li>
                 {% else %}
-                    <li><a href="#">Login</a></li>
-                    <li><a href="#">Sign Up</a></li>
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}">Sign Up</a></li>
                 {% endif %}
             </ul>
         </nav>

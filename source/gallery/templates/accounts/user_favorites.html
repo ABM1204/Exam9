@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Your Favorites</h2>
+
+<h3>Favorite Albums</h3>
+<ul>
+  {% for album in favorite_albums %}
+  <li><a href="{% url 'album_detail' album.pk %}">{{ album.title }}</a></li>
+  {% endfor %}
+</ul>
+
+<h3>Favorite Photos</h3>
+<ul>
+  {% for photo in favorite_photos %}
+  <li>{{ photo.caption }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}
