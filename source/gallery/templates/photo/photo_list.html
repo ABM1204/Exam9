@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Photo List</h1>
+{% if user.is_authenticated %}
+  <a href="{% url 'photo_create' %}">Create Photo</a>
+{% endif %}
+<ul>
+  {% for photo in photos %}
+  <li>
+    <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" width="100" height="100">
+    <p>{{ photo.caption }}</p>
+    <p>Author: <a href="{% url 'user_profile' photo.author.id %}">{{ photo.author.get_full_name }}</a></p>
+    <p>Date: {{ photo.created_at }}</p>
+    {% if photo.album %}
+      <p>Album: <a href="{% url 'album_detail' photo.album.id %}">{{ photo.album.title }}</a></p>
+    {% endif %}
+    <a href="{% url 'photo_detail' photo.id %}">View Details</a>
+  </li>
+  {% empty %}
+  <li>No photos available.</li>
+  {% endfor %}
+</ul>
+
+<div class="pagination">
+  {% if photos.has_previous %}
+    <a href="?page={{ photos.previous_page_number }}">Previous</a>
+  {% endif %}
+
+  <span class="current">
+    Page {{ photos.number }} of {{ photos.paginator.num_pages }}.
+  </span>
+
+  {% if photos.has_next %}
+    <a href="?page={{ photos.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+
+{% endblock %}

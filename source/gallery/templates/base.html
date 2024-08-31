@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Gallery{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'photo_list' %}">Home</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'photo_create' %}">Create Photo</a></li>
+                    <li><a href="{% url 'album_create' %}">Create Album</a></li>
+                    <li><a href="#">Logout</a></li>
+                    <li>Welcome, {{ user.username }}</li>
+                {% else %}
+                    <li><a href="#">Login</a></li>
+                    <li><a href="#">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>

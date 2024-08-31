@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ album.title }}</h1>
+<p>{{ album.description }}</p>
+<p>Author: {{ album.author.get_full_name }}</p>
+<p>Date: {{ album.created_at }}</p>
+
+<h2>Photos</h2>
+<ul>
+  {% for photo in album.photos.filter(is_private=False).order_by('-created_at') %}
+  <li>
+    <img src="{{ photo.image.url }}" alt="{{ photo.caption }}">
+    <p>{{ photo.caption }}</p>
+    <a href="{% url 'photo_detail' photo.id %}">View Details</a>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

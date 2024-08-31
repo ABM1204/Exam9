@@ -1,0 +1,11 @@
+{% extends 'base.html'%}
+
+{% block content %}
+    <h1>Delete photo</h1>
+    <p>Do you really want to delete the photo?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Delete</button>
+        <a href="{% url 'photo_list' %}">Cancel</a>
+    </form>
+{% endblock %}

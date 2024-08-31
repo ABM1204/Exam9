@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ photo.caption }}</h1>
+    <img src="{{ photo.image }}" alt="{{ photo.caption }}">
+    <p>Author: <a href="{% url 'user_profile' photo.author.id %}">{{ photo.author.get_full_name }}</a></p>
+    <p>Date: {{ photo.created_at }}</p>
+    {% if photo.album %}
+        Album: <a href="{% url 'album_detail' photo.album.id %}">{{ photo.album.title }}</a>
+    {% endif %}
+    <ul>
+        {% for user in photo.favorite_users.all %}
+            <li><a href="{% url 'user_profile' user.id %}">{{ user.get_full_name }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}
